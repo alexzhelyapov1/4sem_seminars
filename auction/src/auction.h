@@ -5,9 +5,12 @@
 #include <list>
 #include <ostream>
 
+
 class Bet;
 class Lot;
 class User;
+class Auction;
+
 
 class Bet {
     private:
@@ -18,11 +21,13 @@ class Bet {
     User* user_;
 
     Bet(); 
-    Bet(Lot& lot, size_t price, User& user);
+    Bet(Lot& lot, const size_t price, User& user);
     friend std::ostream& operator<< (std::ostream& s, const Bet& my_bet);
 
     friend User;
     friend Lot;
+    friend Auction;
+    friend std::ostream;
 };
 
 
@@ -43,7 +48,9 @@ class Lot {
     friend std::ostream;
     friend Bet;
     friend User;
+    friend Auction;
 };
+
 
 class User {
     private:
@@ -59,19 +66,42 @@ class User {
 
     friend Bet;
     friend Lot;
+    friend Auction;
+    friend std::ostream;
 };
 
-// class Bet {
-//     private:
-//     std::string lot_name_;
-//     size_t price_;
-//     std::string user_name_;
 
-//     public:
-//     Bet();
-//     Bet(std::string lot_name, size_t price, std::string user_name);
-//     friend std::ostream& operator<< (std::ostream& s, const Bet& my_bet);
-// };
+class Auction {
+    private:
+    std::list<Lot> lots_;
+    std::list<User> users_;
 
+    public:
+    Auction();    // Хочется сделать, чтобы можно было создавать только один объект аукцион
+    const void print_users();
+    const void print_lots();
+    const void print_all();
+
+    friend std::ostream;
+    friend Lot;
+    friend Bet;
+    friend User;
+
+};
 
 #endif
+
+
+
+
+/*
+ТЗ: написать классы для аукциона. Есть аукцион, лоты и пользователи. У лота есть история ставок, от какого пользователя, с какой ценой.
+У пользователя есть история ставок на разные лоты аналогично. Можно отменять ставки.
+
+Моя реализация:
+Лоты может создавать только объект аукцион.
+Пользователь может ставить новую ставку на любой лот.
+Сейчас ошибки будут обрабатываться через возвращаемые значения. В следующих версиях планирую перейти на try\catch\throw.
+Но не будет ли это еще более громоздко?
+Список ставок будет хранится как стэк объектов "ставка" = "имя лота, ставка, имя пользователя"
+*/
