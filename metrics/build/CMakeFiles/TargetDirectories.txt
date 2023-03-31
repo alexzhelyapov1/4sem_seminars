@@ -1,3 +1,0 @@
-/Users/alex_mac/Desktop/mipt/4sem_seminars/metrics/build/CMakeFiles/main.dir
-/Users/alex_mac/Desktop/mipt/4sem_seminars/metrics/build/CMakeFiles/edit_cache.dir
-/Users/alex_mac/Desktop/mipt/4sem_seminars/metrics/build/CMakeFiles/rebuild_cache.dir
