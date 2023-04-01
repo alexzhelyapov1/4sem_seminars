@@ -25,10 +25,13 @@ int main()
 
     // std::cout <<  main_room->get_object("Main cup")->make_action() << std::endl;
 
-
+    std::cout << "------Build game--------\n";
     std::shared_ptr<Engine> main_engine = build_game();
+    std::cout << "------------------------\n";
+
     main_engine->where_am_i();
     main_engine->what_can_i_see();
+    main_engine->choose_object();
 
 
 

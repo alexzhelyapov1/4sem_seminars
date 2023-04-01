@@ -11,8 +11,8 @@ std::string Action::name() const
 
 std::string Action::make_action() 
 {
-    // std::cout << "Making action " << after_action_ << std::endl;
-    return after_action_;
+    // std::cout << "Making action " << after_action_msg_ << std::endl;
+    return after_action_msg_;
 }
 
 
@@ -81,7 +81,8 @@ void Room::add_object(const std::shared_ptr<Object> new_object)
 std::string Room::objects() const 
 {
 
-    std::string info =  "Objects in " + name_ + ":\n"; 
+    // std::string info =  "Objects in " + name_ + ":\n"; 
+    std::string info = {};
 
     for (auto& item : objects_) {
         info += "- " + item.first + "\n";
@@ -98,6 +99,8 @@ std::shared_ptr<Object> Room::get_object(const std::string& name) const
         std::cout << "No object: " << name << ", in room: " << name_ << std::endl;
         return nullptr;
     }
+
+    std::cout << "Found object " << name << ", success!\n";
 
     return objects_.at(name);
 }
@@ -140,7 +143,7 @@ std::shared_ptr<Engine> build_game()
     std::shared_ptr<Engine> main_engine(new Engine());
 
 
-    std::list<std::string> room_names = {std::string("Room"),    std::string("Corridor"), 
+    std::list<std::string> room_names = {std::string("Room"),    std::string("Corridor1"), 
                                          std::string("Kitchen"), std::string("Bedroom")};
 
 
@@ -156,7 +159,10 @@ std::shared_ptr<Engine> build_game()
     }
 
     
+    main_engine->add_room(std::shared_ptr<Room>(new Corridor()));
+
     main_engine->set_current_room("Corridor");
+
 
 
     return main_engine;
@@ -173,7 +179,20 @@ void Engine::where_am_i()
 
 void Engine::what_can_i_see() 
 {
-    std::cout << "You can: " << std::endl;
+    std::cout << "In the room there are: " << std::endl;
 
     std::cout << current_room_->objects() << std::endl;
+}
+
+
+
+void Engine::choose_object()
+{   
+    std::cout << "Choose object in a room:\n";
+    std::cout << current_room_->objects();
+
+    std::string temp;
+    std::cin >> temp;
+
+    std::cout << current_room_->get_object(temp)->make_action() << std::endl;
 }
