@@ -25,6 +25,7 @@ class Action;
 
 class Action
 {
+  protected:
     std::string name_;
     std::string after_action_msg_;
 
@@ -37,7 +38,7 @@ class Action
     }
 
     std::string name() const;
-    std::string make_action();
+    virtual std::string make_action();
 };
 
 
@@ -87,14 +88,20 @@ class Engine
 
 
   public:
+    Engine(){}
+    // Engine(Engine&) = delete;
+    Engine& operator=(const Engine&) = delete;
 
     std::string target_requered;
 
+    static std::shared_ptr<Engine> getInstance();
     void add_room(const std::shared_ptr<Room> new_room);
-    void set_current_room(const std::string& room_name);
+    void move_to_room(const std::string& room_name);
     void where_am_i();
     void what_can_i_see();
     void choose_object();
+    void listen_cmd();
+    void rooms() const;
 
 
     friend Action;
@@ -113,8 +120,41 @@ std::shared_ptr<Engine> build_game();
 class Corridor;
 class Bad_Cup;
 class Drink_Water_Bad;
+class Door;
+class Door_To_Room;
+class Door_To_Corridor;
 
 // ---------------------------------------------------------------------------------------------------------------------
+
+
+
+class Move_To_Corridor : public Action
+{
+  public:
+    Move_To_Corridor() : Action("Go to Corridor", "Moving to Corridor"){}
+    std::string make_action() override
+    {
+        std::shared_ptr<Engine> main_engine = Engine::getInstance();
+        main_engine->rooms();
+        main_engine->move_to_room("Corridor");
+        return after_action_msg_;
+    }
+};
+
+
+
+class Move_To_Kitchen : public Action
+{
+  public:
+    Move_To_Kitchen() : Action("Go to kitchen", "Moving to Kitchen"){}
+    std::string make_action() override
+    {
+        std::shared_ptr<Engine> main_engine = Engine::getInstance();
+        main_engine->move_to_room("Kitchen");
+        return after_action_msg_;
+    }
+};
+
 
 
 class Drink_Water_Bad : public Action
@@ -146,14 +186,61 @@ class Hole : public Object
 
 
 
-class Corridor : public Room {
+class Door : public Object
+{
+  public:
+    Door() : Object("Door"){}
+    Door(std::string name) : Object(name){}
+};
+
+
+
+class Door_To_Kitchen : public Door
+{
+  public:
+    Door_To_Kitchen() : Door("door_to_kitchen")
+    {
+        add_action(std::shared_ptr<Action>(new Move_To_Kitchen()));
+    }
+};
+
+
+
+class Door_To_Corridor : public Door
+{
+  public:
+    Door_To_Corridor() : Door("door_to_corridor")
+    {
+        add_action(std::shared_ptr<Action>(new Move_To_Corridor()));
+    }
+};
+
+
+
+class Corridor : public Room 
+{
     public:
-      Corridor() : Room("Corridor"){
+      Corridor() : Room("Corridor")
+      {
         add_object(std::shared_ptr<Object>(new Bad_Cup()));
         add_object(std::shared_ptr<Object>(new Hole()));
+        add_object(std::shared_ptr<Object>(new Door_To_Kitchen()));
       }
-
 };
+
+
+
+class Kitchen : public Room 
+{
+    public:
+      Kitchen() : Room("Kitchen")
+      {
+        add_object(std::shared_ptr<Object>(new Bad_Cup()));
+        add_object(std::shared_ptr<Object>(new Hole()));
+        add_object(std::shared_ptr<Object>(new Door_To_Corridor()));
+      }
+};
+
 
 
 
