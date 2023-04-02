@@ -30,11 +30,6 @@ int main()
     std::cout << "------------------------\n";
 
 
-    main_engine->rooms();
-    main_engine->move_to_room("Corridor");
-    main_engine->where_am_i();
-    main_engine->move_to_room("Kitchen");
-    main_engine->where_am_i();
     while (true)
     {
         main_engine->listen_cmd();

@@ -38,7 +38,7 @@ class Action
     }
 
     std::string name() const;
-    virtual std::string make_action();
+    virtual void make_action();
 };
 
 
@@ -52,13 +52,13 @@ class Object
     Object();
     Object(const std::string& name);
     Object(const std::string& name, std::shared_ptr<Action> action) : name_(name), action_(action){
-        std::cout << "Added action (" << action_->name() << ", " << action_->make_action() << ")\n";
+        std::cout << "Added action (" << name << ", " << action << ")\n";
     }
 
     std::string name() const;
     void add_action(const std::shared_ptr<Action> new_action);
     std::string action() const;
-    std::string make_action();
+    void make_action();
 };
 
 
@@ -85,10 +85,9 @@ class Engine
 {
     std::shared_ptr<Room> current_room_;
     std::map<std::string, std::shared_ptr<Room>> rooms_;
-
+    Engine(){}
 
   public:
-    Engine(){}
     // Engine(Engine&) = delete;
     Engine& operator=(const Engine&) = delete;
 
@@ -131,13 +130,12 @@ class Door_To_Corridor;
 class Move_To_Corridor : public Action
 {
   public:
-    Move_To_Corridor() : Action("Go to Corridor", "Moving to Corridor"){}
-    std::string make_action() override
+    Move_To_Corridor() : Action("Go to Corridor", ""){}
+    void make_action() override
     {
         std::shared_ptr<Engine> main_engine = Engine::getInstance();
-        main_engine->rooms();
         main_engine->move_to_room("Corridor");
-        return after_action_msg_;
+        std::cout << after_action_msg_ << std::endl;
     }
 };
 
@@ -146,12 +144,12 @@ class Move_To_Corridor : public Action
 class Move_To_Kitchen : public Action
 {
   public:
-    Move_To_Kitchen() : Action("Go to kitchen", "Moving to Kitchen"){}
-    std::string make_action() override
+    Move_To_Kitchen() : Action("Go to kitchen", ""){}
+    void make_action() override
     {
         std::shared_ptr<Engine> main_engine = Engine::getInstance();
         main_engine->move_to_room("Kitchen");
-        return after_action_msg_;
+        std::cout << after_action_msg_ << std::endl;
     }
 };
 

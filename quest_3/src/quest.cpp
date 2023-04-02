@@ -9,11 +9,10 @@ std::string Action::name() const
 
 
 
-std::string Action::make_action() 
+void Action::make_action() 
 {
     // std::cout << "Making action " << after_action_msg_ << std::endl;
-    std::cout << "Making action of class Action\n";
-    return after_action_msg_;
+    std::cout << after_action_msg_ << std::endl;
 }
 
 
@@ -33,7 +32,7 @@ std::string Object::name() const
 void Object::add_action(const std::shared_ptr<Action> new_action) 
 {
     action_ = new_action;
-    std::cout << "Added action: " << action_->name() << ", after action: " << action_->make_action() << ", to object: " << name_ << std::endl;
+    std::cout << "Added action: " << action_->name() << std::endl;
 }
 
 
@@ -44,9 +43,9 @@ std::string Object::action() const {
 
 
 
-std::string Object::make_action() 
+void Object::make_action() 
 {
-    return action_->make_action();
+    action_->make_action();
 }
 
 
@@ -102,7 +101,7 @@ std::shared_ptr<Object> Room::get_object(const std::string& name) const
         return nullptr;
     }
 
-    std::cout << "Found object " << name << ", success!\n";
+    // std::cout << "Found object " << name << ", success!\n";
 
     return objects_.at(name);
 }
@@ -129,16 +128,12 @@ void Engine::move_to_room(const std::string& room_name)
 
     if (rooms_.find(room_name) == rooms_.end()) {
         std::cout << "No such room: " << room_name << std::endl;
-
-        rooms();
-
         return;
     }
 
 
     current_room_ = rooms_.at(room_name);
     std::cout << "Moved to room: " << current_room_->name() << std::endl;
-
 }
 
 
@@ -173,13 +168,13 @@ void Engine::listen_cmd()
 {
     std::string temp;
 
-    std::cout << "Enter cmd:\n";
+    // std::cout << "Enter cmd:\n";
     std::cin >> temp;
 
         if (temp == "help")
         {
             std::cout << "------------------------------\n";
-            std::cout << "Where are you? -> where_are_me\n";
+            std::cout << "Where are you? -> where_am_i\n";
             std::cout << "Objects in room? -> objects\n";
             std::cout << "Choose object -> choose object\n";
             std::cout << "All rooms -> rooms\n";
@@ -187,7 +182,7 @@ void Engine::listen_cmd()
             return;
         }
 
-        if (temp == "where_are_me")
+        if (temp == "where_am_i")
         {
             std::cout << "You are in a room: " << current_room_->name() << std::endl;
             return;
@@ -202,8 +197,7 @@ void Engine::listen_cmd()
         if (temp == "choose")
         {
             std::cin >> temp;
-            std::cout << current_room_->get_object(temp)->make_action() << std::endl;
-            rooms();
+            current_room_->get_object(temp)->make_action();
             return;
         }
 
@@ -222,7 +216,10 @@ void Engine::listen_cmd()
 std::shared_ptr<Engine> Engine::getInstance()
 {
     static Engine example;
-    return std::make_shared<Engine>(example);
+    static std::shared_ptr<Engine> main_engine_ = std::make_shared<Engine>(example);
+
+    // std::cout << &main_engine_;
+    return main_engine_;
     // return std::make_shared<Engine>(Engine::getInstance());
 }
 
@@ -252,5 +249,5 @@ void Engine::choose_object()
     std::string temp;
     std::cin >> temp;
 
-    std::cout << current_room_->get_object(temp)->make_action() << std::endl;
+    current_room_->get_object(temp)->make_action();
 }
