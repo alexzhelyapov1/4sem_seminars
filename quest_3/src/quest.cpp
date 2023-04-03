@@ -34,6 +34,12 @@ Object::Object() : name_(""){};
 Object::Object(const std::string& name) : name_(name){};
 
 
+Object::Object(const std::string& name, std::shared_ptr<Action> action) : name_(name), action_(action)
+{
+    actions_.insert(std::pair<std::string, std::shared_ptr<Action>>(action->name(), action));
+}
+
+
 std::string Object::name() const
 {
     return name_;
@@ -45,23 +51,17 @@ void Object::add_action(const std::shared_ptr<Action> new_action)
     action_ = new_action;
     actions_.insert(std::pair<std::string, std::shared_ptr<Action>>(new_action->name(), new_action));
 
-    std::cout << "Action list for object " << name_ << ": ";
-    for (const auto& item : actions_) {
-        std::cout << item.first << ", ";
-    }
-    std::cout << std::endl;
+    // std::cout << "Action list for object " << name_ << ": ";
+    // for (const auto& item : actions_) {
+    //     std::cout << item.first << ", ";
+    // }
+    // std::cout << std::endl;
 
     // std::cout << "Added action: " << action_->name() << std::endl;
 }
 
 
-std::string Object::action() const 
-{
-    return action_->name();
-}
-
-
-void Object::actions() const
+void Object::print_actions() const
 {
     for (const auto& item : actions_)
     {
@@ -111,16 +111,11 @@ void Room::add_object(const std::shared_ptr<Object> new_object)
 }
 
 
-std::string Room::objects() const 
+void Room::print_objects() const 
 {
-    // std::string info =  "Objects in " + name_ + ":\n"; 
-    std::string info = {};
-
     for (auto& item : objects_) {
-        info += "- " + item.first + "\n";
+        std::cout <<  "- " + item.first + "\n";
     }
-
-    return info;
 }
 
 
@@ -194,7 +189,7 @@ void Engine::listen_cmd()
 {
     std::string key_word;
 
-    // std::cout << "Enter cmd:\n";
+    std::cout << "Enter cmd or choose object: ";
     std::cin >> key_word;
 
         if (key_word == "help")
@@ -202,8 +197,9 @@ void Engine::listen_cmd()
             std::cout << "------------------------------\n";
             std::cout << "Where are you? -> where_am_i\n";
             std::cout << "Objects in room? -> objects\n";
-            std::cout << "Choose object -> choose object\n";
             std::cout << "All rooms -> rooms\n";
+            std::cout << "Show all actions in a room - show_all_actions\n";
+            std::cout << "Exit to main choice - show_all_actions\n";
             std::cout << "------------------------------\n";
             return;
         }
@@ -216,39 +212,37 @@ void Engine::listen_cmd()
         
         if (key_word == "objects")
         {
-            std::cout << current_room_->objects() << std::endl;
+            current_room_->print_objects();
+            return;
+        }
 
-            std::cout << "Choose object: ";
-            std::string object_name;
-            std::cin >> object_name;
+        if (key_word == "show_all_actions")
+        {
+            current_room_->printf_all_actions_in_room();
+            return;
+        }
 
-            if (object_name == "exit") return;
+        if (key_word == "rooms")
+        {
+            rooms();
+            return;
+        }
 
-            std::shared_ptr<Object> object = current_room_->get_object(object_name);
+        if (current_room_->objects_.find(key_word) != current_room_->objects_.end())
+        {
+            std::shared_ptr<Object> object = current_room_->get_object(key_word);
             if (!object) return;
 
-            std::cout << "Actions for object " << object_name << ": " << std::endl;
-            object->actions();
+            std::cout << "Actions for object " << key_word << ": " << std::endl;
+            object->print_actions();
 
             std::cout << "Choose action: ";
             std::string action_name;
             std::cin >> action_name;
 
+            if (action_name == "exit") return;
+
             object->make_action(action_name);
-
-            return;
-        }
-
-        // if (key_word == "choose")
-        // {
-        //     std::cin >> key_word;
-        //     current_room_->get_object(key_word)->make_action();
-        //     return;
-        // }
-
-        if (key_word == "rooms")
-        {
-            rooms();
             return;
         }
 
@@ -268,29 +262,15 @@ std::shared_ptr<Engine> Engine::getInstance()
 }
 
 
-void Engine::where_am_i() 
+void Room::printf_all_actions_in_room() const
 {
-    std::cout << "You are in a room: " << current_room_->name() << std::endl;
+    for (const auto& object : objects_)
+    {
+        std::cout << "> " << object.first << ":\n";
+
+        for (const auto& action : object.second->actions_)
+        {
+            std::cout <<  "    - " << action.first << std::endl;
+        }
+    }
 }
-
-
-void Engine::what_can_i_see() 
-{
-    std::cout << "In the room there are: " << std::endl;
-
-    std::cout << current_room_->objects() << std::endl;
-}
-
-
-// void Engine::choose_object()
-// {   
-//     std::cout << "Choose object in a room:\n";
-//     std::cout << current_room_->objects();
-
-//     std::string temp;
-//     std::cin >> temp;
-
-//     current_room_->get_object(temp)->make_action();
-// }
-
-
