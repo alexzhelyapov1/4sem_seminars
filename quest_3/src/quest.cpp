@@ -1,15 +1,28 @@
 #include "quest.h"
 
 
+bool operator==(const std::string& str1, const std::string& str2) 
+{
+    std::string str1_low = to_lower(str1);
+    std::string str2_low = to_lower(str2);
+    return strcmp(str1_low.data(), str2_low.data()) ? 0 : 1;
+}
+
+
+bool operator==(const std::string& str1, const char* str2) 
+{
+    std::string str1_low = to_lower(str1);
+    std::string str2_low = to_lower(str2);
+    return strcmp(str1_low.data(), str2_low.data()) ? 0 : 1;
+}
+
+
 // ---------------------------------------------------------------------------------------------------------------------
 // Action
 // ---------------------------------------------------------------------------------------------------------------------
 
 
-Action::Action(std::string name, std::string after_action_msg) : name_(name), after_action_msg_(after_action_msg)
-{
-    // std::cout << "Created action: " << name_ << ", after action = " << after_action_msg_ << std::endl;
-}
+Action::Action(std::string name, std::string after_action_msg) : name_(name), after_action_msg_(after_action_msg){}
 
 
 std::string Action::name() const 
@@ -18,10 +31,10 @@ std::string Action::name() const
 }
 
 
-void Action::make_action() 
+std::string Action::make_action() 
 {
-    // std::cout << "Making action " << after_action_msg_ << std::endl;
     std::cout << after_action_msg_ << std::endl;
+    return "";
 }
 
 
@@ -50,14 +63,6 @@ void Object::add_action(const std::shared_ptr<Action> new_action)
 {
     action_ = new_action;
     actions_.insert(std::pair<std::string, std::shared_ptr<Action>>(new_action->name(), new_action));
-
-    // std::cout << "Action list for object " << name_ << ": ";
-    // for (const auto& item : actions_) {
-    //     std::cout << item.first << ", ";
-    // }
-    // std::cout << std::endl;
-
-    // std::cout << "Added action: " << action_->name() << std::endl;
 }
 
 
@@ -72,15 +77,15 @@ void Object::print_actions() const
 }
 
 
-void Object::make_action(const std::string& action_name) const
+std::string Object::make_action(const std::string& action_name) const
 {
     if (actions_.find(action_name) == actions_.end())
     {
         std::cout << "No such action: " << action_name << std::endl;
-        return;
+        return "";
     }
 
-    actions_.at(action_name)->make_action();
+    return actions_.at(action_name)->make_action();
 }
 
 
@@ -107,7 +112,18 @@ void Room::add_object(const std::shared_ptr<Object> new_object)
     }
 
     objects_.insert(std::pair<std::string, std::shared_ptr<Object>>(new_object->name(), new_object));
-    // std::cout << "Added object: " << new_object->name() << ", to room: " << name_ << std::endl;
+}
+
+
+void Room::delete_object(const std::string& object_name) 
+{
+    if (objects_.find(object_name) == objects_.end())
+    {
+        std::cout << "Can'r destroy object " << object_name << " (no such object)\n";
+        return;
+    }
+
+    objects_.erase(objects_.find(object_name));
 }
 
 
@@ -126,11 +142,22 @@ std::shared_ptr<Object> Room::get_object(const std::string& name) const
         return nullptr;
     }
 
-    // std::cout << "Found object " << name << ", success!\n";
-
     return objects_.at(name);
 }
 
+
+void Room::printf_all_actions_in_room() const
+{
+    for (const auto& object : objects_)
+    {
+        std::cout << "> " << object.first << ":\n";
+
+        for (const auto& action : object.second->actions_)
+        {
+            std::cout <<  "    - " << action.first << std::endl;
+        }
+    }
+}
 
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -146,7 +173,6 @@ void Engine::add_room(const std::shared_ptr<Room> new_room)
     }
 
     rooms_.insert(std::pair<std::string, std::shared_ptr<Room>> (new_room->name(), new_room));
-    // std::cout << "Added room: " << new_room->name() << std::endl;
 }
 
 
@@ -242,7 +268,7 @@ void Engine::listen_cmd()
 
             if (action_name == "exit") return;
 
-            object->make_action(action_name);
+            handler(object->make_action(action_name));
             return;
         }
 
@@ -251,26 +277,41 @@ void Engine::listen_cmd()
 }
 
 
+void Engine::handler(const std::string& cmd) 
+{
+    if (cmd.find(DESTROY_CMD) != std::string::npos)
+    {
+        current_room_->delete_object(cmd.substr(cmd.find("_") + 1));
+    }
+
+    if (cmd.find(MOVE_CMD) != std::string::npos)
+    {
+        move_to_room(cmd.substr(cmd.find("_") + 1));
+    }
+}
+
+
 std::shared_ptr<Engine> Engine::getInstance()
 {
     static Engine example;
     static std::shared_ptr<Engine> main_engine_ = std::make_shared<Engine>(example);
 
-    // std::cout << &main_engine_;
     return main_engine_;
-    // return std::make_shared<Engine>(Engine::getInstance());
 }
 
 
-void Room::printf_all_actions_in_room() const
-{
-    for (const auto& object : objects_)
-    {
-        std::cout << "> " << object.first << ":\n";
+// ---------------------------------------------------------------------------------------------------------------------
+// Other functions
+// ---------------------------------------------------------------------------------------------------------------------
 
-        for (const auto& action : object.second->actions_)
-        {
-            std::cout <<  "    - " << action.first << std::endl;
-        }
+
+std::string to_lower(const std::string& str) 
+{
+    int i = 0;
+    std::string lower;
+    while(str[i]) 
+    {
+        lower += tolower(str[i++]);
     }
+    return lower;
 }

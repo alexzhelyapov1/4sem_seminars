@@ -11,11 +11,18 @@ To see cmds to use enter "help"
 
 
 # Availabilities of game for now
-You can crate rooms, objects and action. 
-Now there are examples of actions, that can change room (f.e. move_to_kitchen), can destroy objects (f.e. throw_cup).
+You can crate rooms, objects and action. \
+Now there are examples of actions, that can change current room (f.e. move_to_kitchen), can destroy objects (f.e. throw_cup).\
+You can create other fluences to Engine in function Engine::handler(std::string)
 
 
 # Realisation
+
+### Compare cmds and strings
+
+```!!!Operator==(string, string) redefined!!!```
+
+It compares lowercase(string commands). So "HeLlo" = "hello"
 
 ### Engine
 This is main singleton objects, which contains map of rooms, current position of player. 
@@ -40,12 +47,16 @@ Chose the object:
 > Cup
 > Door
 > Bottle
+
+: Bottle
+
+Choose an action:
+- drink_water
+- throw_the_bottle
+
+: drink_water
 ```
 
-User input:
-```
-Bottle
-```
 
 To get instantly object by the time O(1) we need to use std::map. (Because there are can be several objects of a same class, but with
 different names).
