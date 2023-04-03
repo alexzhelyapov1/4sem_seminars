@@ -1,22 +1,6 @@
 #include "quest.h"
 
 
-bool operator==(const std::string& str1, const std::string& str2) 
-{
-    std::string str1_low = to_lower(str1);
-    std::string str2_low = to_lower(str2);
-    return strcmp(str1_low.data(), str2_low.data()) ? 0 : 1;
-}
-
-
-bool operator==(const std::string& str1, const char* str2) 
-{
-    std::string str1_low = to_lower(str1);
-    std::string str2_low = to_lower(str2);
-    return strcmp(str1_low.data(), str2_low.data()) ? 0 : 1;
-}
-
-
 // ---------------------------------------------------------------------------------------------------------------------
 // Action
 // ---------------------------------------------------------------------------------------------------------------------
@@ -198,19 +182,6 @@ void Engine::rooms() const
 }
 
 
-std::shared_ptr<Engine> build_game() 
-{
-    std::shared_ptr<Engine> main_engine = Engine::getInstance();
-    
-    main_engine->add_room(std::shared_ptr<Room>(new Corridor()));
-    main_engine->add_room(std::shared_ptr<Room>(new Kitchen()));
-
-    main_engine->move_to_room("Kitchen"); 
-
-    return main_engine;
-}
-
-
 void Engine::listen_cmd()
 {
     std::string key_word;
@@ -305,6 +276,22 @@ std::shared_ptr<Engine> Engine::getInstance()
 // ---------------------------------------------------------------------------------------------------------------------
 
 
+bool operator==(const std::string& str1, const std::string& str2) 
+{
+    std::string str1_low = to_lower(str1);
+    std::string str2_low = to_lower(str2);
+    return strcmp(str1_low.data(), str2_low.data()) ? 0 : 1;
+}
+
+
+bool operator==(const std::string& str1, const char* str2) 
+{
+    std::string str1_low = to_lower(str1);
+    std::string str2_low = to_lower(str2);
+    return strcmp(str1_low.data(), str2_low.data()) ? 0 : 1;
+}
+
+
 std::string to_lower(const std::string& str) 
 {
     int i = 0;
@@ -314,4 +301,17 @@ std::string to_lower(const std::string& str)
         lower += tolower(str[i++]);
     }
     return lower;
+}
+
+
+std::shared_ptr<Engine> build_game() 
+{
+    std::shared_ptr<Engine> main_engine = Engine::getInstance();
+    
+    main_engine->add_room(std::shared_ptr<Room>(new Corridor()));
+    main_engine->add_room(std::shared_ptr<Room>(new Kitchen()));
+
+    main_engine->move_to_room("Kitchen"); 
+
+    return main_engine;
 }

@@ -8,7 +8,7 @@
 #include <list>
 
 #define DESTROY_CMD std::string("destroy")
-#define MOVE_CMD std::string("moveto")
+#define MOVE_CMD    std::string("moveto")
 
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -34,7 +34,7 @@ class Action
     Action() : name_(""){}
     Action(std::string name, std::string after_action_msg);
 
-    std::string name() const;
+    std::string         name() const;
     virtual std::string make_action();
 };
 
@@ -42,9 +42,9 @@ class Action
 
 class Object 
 {
-    std::string name_;
-    std::shared_ptr<Action> action_;
-    std::map<std::string, std::shared_ptr<Action>> actions_;
+    std::string                                     name_;
+    std::shared_ptr<Action>                         action_;
+    std::map<std::string, std::shared_ptr<Action>>  actions_;
 
   public:
 
@@ -53,12 +53,11 @@ class Object
     Object(const std::string& name, std::shared_ptr<Action> action);
 
     std::string name() const;
-    void print_actions() const;
-    void add_action(const std::shared_ptr<Action> new_action);
+    void        print_actions() const;
+    void        add_action(const std::shared_ptr<Action> new_action);
     std::string make_action(const std::string& action_name) const;
 
     friend Room;
-    friend Engine;
 };
 
 
@@ -73,11 +72,11 @@ class Room
     Room();
     Room(const std::string& name);
 
-    std::string name() const;
-    void print_objects() const;
-    void printf_all_actions_in_room() const;
-    void add_object(const std::shared_ptr<Object> new_object);
-    void delete_object(const std::string& object_name);
+    std::string             name() const;
+    void                    print_objects() const;
+    void                    printf_all_actions_in_room() const;
+    void                    add_object(const std::shared_ptr<Object> new_object);
+    void                    delete_object(const std::string& object_name);
     std::shared_ptr<Object> get_object(const std::string& name) const;
 
     friend Engine;
@@ -88,26 +87,25 @@ class Room
 class Engine 
 {
     Engine(){}
-    std::shared_ptr<Room> current_room_;
-    std::map<std::string, std::shared_ptr<Room>> rooms_;
+    std::shared_ptr<Room>                         current_room_;
+    std::map<std::string, std::shared_ptr<Room>>  rooms_;
 
-    void add_room(const std::shared_ptr<Room> new_room);
+    void add_room(const std::shared_ptr<Room>new_room);
 
   public:
     // Engine(Engine&) = delete;    // Can't disable
     Engine& operator=(const Engine&) = delete;
 
-    std::string target_requered;
 
-    static std::shared_ptr<Engine> getInstance();
-    void choose_object();
-    void listen_cmd();
-    void rooms() const;
-    void move_to_room(const std::string& room_name);
-    void handler(const std::string& cmd);
+    static std::shared_ptr<Engine>  getInstance();
+    void                            choose_object();
+    void                            listen_cmd();
+    void                            rooms() const;
+    void                            move_to_room(const std::string& room_name);
+    void                            handler(const std::string& cmd);
 
-    friend Action;
-    friend std::shared_ptr<Engine> build_game();
+
+    friend std::shared_ptr<Engine>  build_game();
 };
 
 
@@ -140,8 +138,11 @@ class Throw : public Action
 class Move : public Action
 {
     std::string target_;
+
   public:
+
     Move(std::string target) : Action("go_to_" + target, ""), target_(target){}
+
     std::string make_action() override
     {
         return MOVE_CMD + "_" + target_;
@@ -152,6 +153,7 @@ class Move : public Action
 class Yell_At_It : public Action
 {
   public:
+
     Yell_At_It() : Action("yell_at_it", "You yelled at it, it is offended..."){}
     Yell_At_It(std::string target) : Action("yell_at_" + target, "You yelled at " + target + ", it is offended..."){}
 };
@@ -160,6 +162,7 @@ class Yell_At_It : public Action
 class Drink_Water_Bad : public Action
 {
   public:
+
     Drink_Water_Bad() : Action(std::string("drink_water"), 
                                           std::string("Water was poisened, you need to take antidot from kitchen!")){}
 };
@@ -168,6 +171,7 @@ class Drink_Water_Bad : public Action
 class Bad_Cup : public Object 
 {
   public:
+
     Bad_Cup() : Object("bad_cup")
     {
         add_action(std::shared_ptr<Action>(new Drink_Water_Bad()));
@@ -179,6 +183,7 @@ class Bad_Cup : public Object
 class Skrimmer : public Action
 {
   public:
+
     Skrimmer() : Action(std::string("peek_into_a_hole"), std::string("There's a creepy animal, you are scared!")){};
 };
 
@@ -186,6 +191,7 @@ class Skrimmer : public Action
 class Hole : public Object
 {
   public:
+
     Hole() : Object("hole", std::shared_ptr<Action>(new Skrimmer())){};
 };
 
@@ -193,6 +199,7 @@ class Hole : public Object
 class Door_To_Kitchen : public Object
 {
   public:
+
     Door_To_Kitchen() : Object("door_to_kitchen")
     {
         add_action(std::shared_ptr<Action>(new Move("Kitchen")));
@@ -204,6 +211,7 @@ class Door_To_Kitchen : public Object
 class Door_To_Corridor : public Object
 {
   public:
+
     Door_To_Corridor() : Object("door_to_corridor")
     {
         add_action(std::shared_ptr<Action>(new Move("Corridor")));
@@ -215,6 +223,7 @@ class Door_To_Corridor : public Object
 class Corridor : public Room 
 {
     public:
+
       Corridor() : Room("Corridor")
       {
         add_object(std::shared_ptr<Object>(new Bad_Cup()));
@@ -229,6 +238,7 @@ class Corridor : public Room
 class Kitchen : public Room 
 {
     public:
+    
       Kitchen() : Room("Kitchen")
       {
         add_object(std::shared_ptr<Object>(new Bad_Cup()));
@@ -241,3 +251,6 @@ class Kitchen : public Room
 
 
 #endif
+
+
+// Content.h Ask question
