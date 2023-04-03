@@ -1,9 +1,7 @@
 #ifndef QUEST
 #define QUEST
 
-// Хочется добавить выбор объекта -> выбор действия с объектом
-
-
+// Объекты - выбор объекта - выбор действия
 
 #include <iostream>
 #include <string>
@@ -22,7 +20,6 @@ class Action;
 // ---------------------------------------------------------------------------------------------------------------------
 
 
-
 class Action
 {
   protected:
@@ -32,33 +29,33 @@ class Action
   public:
 
     Action() : name_(""){}
-    Action(std::string name, std::string after_action_msg) : name_(name), after_action_msg_(after_action_msg)
-    {
-        std::cout << "Created action: " << name_ << ", after action = " << after_action_msg_ << std::endl;
-    }
+    Action(std::string name, std::string after_action_msg);
 
     std::string name() const;
     virtual void make_action();
 };
 
 
+
 class Object 
 {
     std::string name_;
     std::shared_ptr<Action> action_;
+    std::map<std::string, std::shared_ptr<Action>> actions_;
 
   public:
 
     Object();
     Object(const std::string& name);
     Object(const std::string& name, std::shared_ptr<Action> action) : name_(name), action_(action){
-        std::cout << "Added action (" << name << ", " << action << ")\n";
+        // std::cout << "Added action (" << name << ", " << action << ")\n";
     }
 
     std::string name() const;
     void add_action(const std::shared_ptr<Action> new_action);
     std::string action() const;
-    void make_action();
+    void actions() const;
+    void make_action(const std::string& action_name) const; // Need realisation
 };
 
 
@@ -83,9 +80,10 @@ class Room
 
 class Engine 
 {
+    Engine(){}
     std::shared_ptr<Room> current_room_;
     std::map<std::string, std::shared_ptr<Room>> rooms_;
-    Engine(){}
+
 
   public:
     // Engine(Engine&) = delete;
@@ -95,15 +93,16 @@ class Engine
 
     static std::shared_ptr<Engine> getInstance();
     void add_room(const std::shared_ptr<Room> new_room);
-    void move_to_room(const std::string& room_name);
     void where_am_i();
     void what_can_i_see();
     void choose_object();
     void listen_cmd();
     void rooms() const;
+    void move_to_room(const std::string& room_name);
 
 
     friend Action;
+    friend std::shared_ptr<Engine> build_game();
 };
 
 
@@ -130,7 +129,7 @@ class Door_To_Corridor;
 class Move_To_Corridor : public Action
 {
   public:
-    Move_To_Corridor() : Action("Go to Corridor", ""){}
+    Move_To_Corridor() : Action("go_to_corridor", ""){}
     void make_action() override
     {
         std::shared_ptr<Engine> main_engine = Engine::getInstance();
@@ -144,7 +143,7 @@ class Move_To_Corridor : public Action
 class Move_To_Kitchen : public Action
 {
   public:
-    Move_To_Kitchen() : Action("Go to kitchen", ""){}
+    Move_To_Kitchen() : Action("go_to_kitchen", ""){}
     void make_action() override
     {
         std::shared_ptr<Engine> main_engine = Engine::getInstance();
@@ -158,7 +157,7 @@ class Move_To_Kitchen : public Action
 class Drink_Water_Bad : public Action
 {
   public:
-    Drink_Water_Bad() : Action(std::string("Drink water"), std::string("Water was poisened, you need to take antidot from kitchen!")){}
+    Drink_Water_Bad() : Action(std::string("drink_water"), std::string("Water was poisened, you need to take antidot from kitchen!")){}
 };
 
 
@@ -172,7 +171,7 @@ class Bad_Cup : public Object
 class Skrimmer : public Action
 {
   public:
-    Skrimmer() : Action(std::string("Peek into a hole"), std::string("There's a creepy animal, you are scared!")){};
+    Skrimmer() : Action(std::string("peek_into_a_hole"), std::string("There's a creepy animal, you are scared!")){};
 };
 
 
@@ -199,6 +198,7 @@ class Door_To_Kitchen : public Door
     Door_To_Kitchen() : Door("door_to_kitchen")
     {
         add_action(std::shared_ptr<Action>(new Move_To_Kitchen()));
+        add_action(std::shared_ptr<Action>(new Drink_Water_Bad()));
     }
 };
 
